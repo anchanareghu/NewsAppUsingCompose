@@ -13,9 +13,11 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -90,7 +92,6 @@ import models.NavigationItem
 
 class MainActivity : AppCompatActivity(), ViewModelProvider.Factory {
     private val viewModel: NewsViewModel by viewModels { this }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
@@ -98,7 +99,6 @@ class MainActivity : AppCompatActivity(), ViewModelProvider.Factory {
             NewsHomeScreen(viewModel)
         }
     }
-
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return NewsViewModel(applicationContext) as T
     }
@@ -117,11 +117,8 @@ fun NewsHomeScreen(viewModel: NewsViewModel) {
     }
 
     var searchText by remember { mutableStateOf("") }
-    val filteredNewsList = remember(newsList, searchText) {
-        newsList.filter { newsItem ->
-            searchText.isBlank() ||
-                    newsItem.title.contains(searchText, ignoreCase = true)
-        }
+    val filteredNewsList = newsList.filter {
+        searchText.isBlank() || it.title.contains(searchText, ignoreCase = true)
     }
 
     var isSearching by remember { mutableStateOf(false) }
@@ -134,109 +131,48 @@ fun NewsHomeScreen(viewModel: NewsViewModel) {
                         OutlinedTextField(
                             value = searchText,
                             onValueChange = { searchText = it },
-                            placeholder = {
-                                Text(
-                                    text = "Search News here...",
-                                    fontSize = 12.sp
-                                )
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .padding(4.dp),
+                            placeholder = { Text("Search News here...", fontSize = 12.sp) },
+                            modifier = Modifier.fillMaxWidth().height(56.dp).padding(4.dp),
                             singleLine = true,
-                            colors = TextFieldDefaults.colors(
-                                cursorColor = MaterialTheme.colorScheme.primary
-                            ),
+                            colors = TextFieldDefaults.colors(cursorColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(18.dp),
                             textStyle = LocalTextStyle.current.copy(fontSize = 12.sp)
                         )
                     } else {
-                        Text(
-                            text = "News",
-                            textAlign = TextAlign.Center,
-                            fontSize = 24.sp
-                        )
+                        Text("News", textAlign = TextAlign.Center, fontSize = 24.sp)
                     }
                 },
                 actions = {
-                    if (!isSearching) {
-                        IconButton(onClick = { isSearching = true }) {
-                            Icon(Icons.Default.Search, contentDescription = "Search")
-                        }
-                    } else {
-                        IconButton(onClick = {
-                            searchText = ""
-                            isSearching = false
-                        }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close")
-                        }
+                    IconButton(onClick = { isSearching = !isSearching }) {
+                        Icon(if (isSearching) Icons.Default.Close else Icons.Default.Search, contentDescription = "Search")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(R.color.lilac))
-
             )
         },
         bottomBar = {
             BottomNavigationBar(
                 items = listOf(
-                    NavigationItem(
-                        name = "Headlines",
-                        route = "headlines",
-                        icon = Icons.Default.Home
-                    ),
-                    NavigationItem(
-                        name = "Categories",
-                        route = "categories",
-                        icon = Icons.Default.List
-                    )
+                    NavigationItem("Headlines", "headlines", Icons.Default.Home),
+                    NavigationItem("Categories", "categories", Icons.Default.List)
                 ),
                 navController = navController,
-                onItemClick = {
-                    navController.navigate(it.route)
-                }
+                onItemClick = { navController.navigate(it.route) }
             )
         }
     ) { innerPadding ->
-        NewsNavGraph(
-            navController = navController,
-            newsList = filteredNewsList,
-            errorMessage = errorMessage,
-            modifier = Modifier.padding(innerPadding),
-            onItemClick = { url ->
-                navController.navigate("webview/${Uri.encode(url)}")
-            },
-            viewModel = viewModel
-        )
+        NewsNavGraph(navController = navController, newsList = filteredNewsList, errorMessage = errorMessage, modifier = Modifier.padding(innerPadding), onItemClick = { url -> navController.navigate("webview/${Uri.encode(url)}") }, viewModel = viewModel)
     }
 }
 
-
 @Composable
-fun NewsNavGraph(
-    navController: NavHostController,
-    newsList: List<HeadLines>,
-    errorMessage: String?,
-    modifier: Modifier,
-    onItemClick: (String) -> Unit,
-    viewModel: NewsViewModel
-) {
-    NavHost(
-        navController = navController,
-        startDestination = "headlines",
-        modifier = modifier
-    ) {
+fun NewsNavGraph(navController: NavHostController, newsList: List<HeadLines>, errorMessage: String?, modifier: Modifier, onItemClick: (String) -> Unit, viewModel: NewsViewModel) {
+    NavHost(navController = navController, startDestination = "headlines", modifier = modifier) {
         composable(route = "headlines") {
-            Headlines(
-                newsList = newsList,
-                errorMessage = errorMessage,
-                onItemClick = onItemClick,
-                sourceLogos = sourceLogos,
-                viewModel = viewModel
-            )
+            Headlines(newsList = newsList, errorMessage = errorMessage, onItemClick = onItemClick, sourceLogos = sourceLogos, viewModel = viewModel)
         }
         composable(route = "categories") {
-            NewsCategories(onItemClick = onItemClick, viewModel)
+            NewsCategories(onItemClick = onItemClick, viewModel = viewModel)
         }
         composable(route = "webview/{url}") { backStackEntry ->
             val url = backStackEntry.arguments?.getString("url")
@@ -247,45 +183,20 @@ fun NewsNavGraph(
     }
 }
 
-
 @Composable
-fun BottomNavigationBar(
-    items: List<NavigationItem>,
-    navController: NavController,
-    modifier: Modifier = Modifier,
-    onItemClick: (NavigationItem) -> Unit
-) {
+fun BottomNavigationBar(items: List<NavigationItem>, navController: NavController, modifier: Modifier = Modifier, onItemClick: (NavigationItem) -> Unit) {
     val backStackEntry = navController.currentBackStackEntryAsState()
-    NavigationBar(
-        modifier = modifier,
-        containerColor = Color.DarkGray,
-        tonalElevation = 5.dp
-    ) {
+    NavigationBar(modifier = modifier, containerColor = Color.DarkGray, tonalElevation = 5.dp) {
         items.forEach { item ->
             val selected = item.route == backStackEntry.value?.destination?.route
-            NavigationBarItem(
-                selected = selected,
-                onClick = { onItemClick(item) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.DarkGray,
-                    unselectedIconColor = Color.Gray
-                ),
-                icon = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = item.name
-                        )
-                        if (selected) {
-                            Text(
-                                text = item.name,
-                                textAlign = TextAlign.Center,
-                                fontSize = 10.sp
-                            )
-                        }
+            NavigationBarItem(selected = selected, onClick = { onItemClick(item) }, colors = NavigationBarItemDefaults.colors(selectedIconColor = Color.DarkGray, unselectedIconColor = Color.Gray), icon = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(imageVector = item.icon, contentDescription = item.name)
+                    if (selected) {
+                        Text(text = item.name, textAlign = TextAlign.Center, fontSize = 10.sp)
                     }
                 }
-            )
+            })
         }
     }
 }
@@ -318,7 +229,7 @@ fun Headlines(
     ) {
         if (newsList.isNotEmpty()) {
             LazyColumn {
-                if (!refreshing) {
+                if (refreshing) {
                     viewModel.getNewsHeadLines()
                 }
                 items(newsList) { newsItem ->
@@ -326,12 +237,12 @@ fun Headlines(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onItemClick(newsItem.url) },
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
                         AsyncImage(
                             newsItem.urlToImage,
                             contentDescription = null,
-                            contentScale = ContentScale.FillHeight,
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .fillMaxWidth()
                         )
@@ -391,6 +302,9 @@ fun Headlines(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
+                    modifier = Modifier
+                        .size(400.dp, 200.dp)
+                        .align(Alignment.Center),
                     painter = painterResource(R.drawable.failedtoload),
                     contentDescription = errorMessage,
                 )
@@ -408,73 +322,58 @@ fun Headlines(
 }
 
 @Composable
-fun NewsCategories(
-    onItemClick: (String) -> Unit,
-    viewModel: NewsViewModel
-) {
+fun NewsCategories(onItemClick: (String) -> Unit, viewModel: NewsViewModel) {
     val selectedCategory = remember { mutableStateOf("Business") }
-
-    val (headLinesList, setHeadLinesList) = remember { mutableStateOf<List<HeadLines?>?>(null) }
+    val (newsList, setNewsList) = remember { mutableStateOf<List<HeadLines?>?>(null) }
     val (errorMessage, setErrorMessage) = remember { mutableStateOf<String?>(null) }
-    val (isLoading, setLoading) = remember { mutableStateOf(true) }
+    var isLoading by remember { mutableStateOf(true) }
 
     val listener = remember {
         object : OnFetchDataListener {
-            override fun onFetchData(headLinesList: List<HeadLines?>?, message: String?) {
-                setHeadLinesList(headLinesList)
+            override fun onFetchData(newsList: List<HeadLines?>?, message: String?) {
+                setNewsList(newsList)
                 setErrorMessage(message)
-                setLoading(false)
             }
 
             override fun onError(message: String?) {
                 setErrorMessage(message)
-                setLoading(false)
             }
         }
     }
     val apiRequestManager = ApiRequestManager(LocalContext.current)
 
     LaunchedEffect(selectedCategory.value) {
+        isLoading = true
         apiRequestManager.getNewsHeadLines(listener, selectedCategory.value, null)
+        isLoading = false
     }
 
     Scaffold(
         topBar = {
-            TopBar(
-                items = listOf(
-                    "General", "Business", "Entertainment",
-                    "Health", "Science", "Sports"
-                ),
-                selectedItem = selectedCategory.value,
-                onItemSelected = { category -> selectedCategory.value = category },
-            )
+            TopBar(items = listOf("General", "Business", "Entertainment", "Health", "Science", "Sports"), selectedItem = selectedCategory.value, onItemSelected = { category -> selectedCategory.value = category })
         },
         content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-            ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(it)) {
                 if (isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    CircularProgressIndicator()
                 } else {
                     errorMessage?.let {
                         if (it.isNotEmpty()) {
-                            ShowToastMessage(LocalContext.current, message = errorMessage)
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.failedtoload),
+                                    contentDescription = errorMessage,
+                                    modifier = Modifier.size(400.dp, 200.dp)
+                                )
+                                ShowToastMessage(LocalContext.current, message = errorMessage)
+                            }
                         }
                     }
-                    headLinesList?.let { list ->
-                        Headlines(
-                            newsList = list.filterNotNull(),
-                            errorMessage = errorMessage,
-                            onItemClick = onItemClick, sourceLogos,
-                            viewModel = viewModel
-                        )
+                    newsList?.let { list ->
+                        Headlines(newsList = list.filterNotNull(), errorMessage = errorMessage, onItemClick = onItemClick, sourceLogos = sourceLogos, viewModel = viewModel)
                     }
                 }
             }
@@ -482,69 +381,38 @@ fun NewsCategories(
     )
 }
 
+
 @Composable
 fun WebView(url: String) {
-    AndroidView(
-        modifier = Modifier.fillMaxSize(),
-        factory = { context ->
-            WebView(context).apply {
-                loadUrl(url)
-            }
-        }
-    )
+    AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
+        WebView(context).apply { loadUrl(url) }
+    })
 }
 
 @Composable
-fun TopBar(
-    items: List<String>,
-    selectedItem: String,
-    onItemSelected: (String) -> Unit,
-) {
-    Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState())
-    ) {
+fun TopBar(items: List<String>, selectedItem: String, onItemSelected: (String) -> Unit) {
+    Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
         items.forEach { item ->
-            TopBarItem(
-                text = item,
-                isSelected = item == selectedItem,
-                onClick = { onItemSelected(item) },
-                selectedColor = R.color.lilac02
-            )
+            TopBarItem(text = item, isSelected = item == selectedItem, onClick = { onItemSelected(item) }, selectedColor = R.color.lilac02)
         }
     }
 }
 
 @Composable
-fun TopBarItem(
-    text: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    selectedColor: Int
-) {
-    Box(
-        modifier = Modifier
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
+fun TopBarItem(text: String, isSelected: Boolean, onClick: () -> Unit, selectedColor: Int) {
+    Box(modifier = Modifier.clickable(onClick = onClick), contentAlignment = Alignment.Center) {
         Text(
             text = text,
-            modifier = Modifier
-                .padding(16.dp, 8.dp)
-                .then(
-                    if (isSelected) {
-                        Modifier.drawWithContent {
-                            drawContent()
-                            drawLine(
-                                color = Color(selectedColor),
-                                start = Offset(0f, size.height),
-                                end = Offset(size.width, size.height),
-                                strokeWidth = 8f
-                            )
-                        }
-                    } else {
-                        Modifier
+            modifier = Modifier.padding(16.dp, 8.dp).then(
+                if (isSelected) {
+                    Modifier.drawWithContent {
+                        drawContent()
+                        drawLine(color = Color(selectedColor), start = Offset(0f, size.height), end = Offset(size.width, size.height), strokeWidth = 8f)
                     }
-                ),
+                } else {
+                    Modifier
+                }
+            ),
             color = if (isSelected) Color(selectedColor) else Color.Gray,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
@@ -553,7 +421,5 @@ fun TopBarItem(
 
 @Composable
 fun ShowToastMessage(context: Context, message: String?) {
-    message?.let {
-        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-    }
+    message?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
 }
