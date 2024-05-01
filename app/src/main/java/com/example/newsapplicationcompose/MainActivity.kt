@@ -237,7 +237,7 @@ fun Headlines(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onItemClick(newsItem.url) },
-                        contentAlignment = Alignment.Center,
+                        contentAlignment = Alignment.Center
                     ) {
                         AsyncImage(
                             newsItem.urlToImage,
