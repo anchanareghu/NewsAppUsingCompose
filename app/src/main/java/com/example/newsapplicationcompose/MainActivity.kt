@@ -3,7 +3,6 @@ package com.example.newsapplicationcompose
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import androidx.compose.ui.Alignment
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -13,11 +12,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -61,6 +58,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
@@ -87,11 +85,18 @@ import coil.compose.AsyncImage
 import com.example.newsapplicationcompose.models.sourceLogos
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import models.HeadLines
-import models.NavigationItem
+import com.example.newsapplicationcompose.models.HeadLines
+import com.example.newsapplicationcompose.models.NavigationItem
 
-class MainActivity : AppCompatActivity(), ViewModelProvider.Factory {
-    private val viewModel: NewsViewModel by viewModels { this }
+class MainActivity : AppCompatActivity() {
+    private val apiRequestManager: ApiRequestManager by lazy {
+        ApiRequestManager(applicationContext)
+    }
+
+    private val viewModel: NewsViewModel by viewModels {
+        NewsViewModelFactory(apiRequestManager)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
@@ -99,8 +104,15 @@ class MainActivity : AppCompatActivity(), ViewModelProvider.Factory {
             NewsHomeScreen(viewModel)
         }
     }
+}
+
+class NewsViewModelFactory(private val apiRequestManager: ApiRequestManager) :
+    ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return NewsViewModel(applicationContext) as T
+        if (modelClass.isAssignableFrom(NewsViewModel::class.java)) {
+            return NewsViewModel(apiRequestManager) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
@@ -113,7 +125,7 @@ fun NewsHomeScreen(viewModel: NewsViewModel) {
     val errorMessage by viewModel.errorMessage.observeAsState(null)
 
     LaunchedEffect(Unit) {
-        viewModel.getNewsHeadLines()
+        viewModel.getNewsHeadLines("general",null)
     }
 
     var searchText by remember { mutableStateOf("") }
@@ -132,7 +144,10 @@ fun NewsHomeScreen(viewModel: NewsViewModel) {
                             value = searchText,
                             onValueChange = { searchText = it },
                             placeholder = { Text("Search News here...", fontSize = 12.sp) },
-                            modifier = Modifier.fillMaxWidth().height(56.dp).padding(4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .padding(4.dp),
                             singleLine = true,
                             colors = TextFieldDefaults.colors(cursorColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(18.dp),
@@ -144,7 +159,10 @@ fun NewsHomeScreen(viewModel: NewsViewModel) {
                 },
                 actions = {
                     IconButton(onClick = { isSearching = !isSearching }) {
-                        Icon(if (isSearching) Icons.Default.Close else Icons.Default.Search, contentDescription = "Search")
+                        Icon(
+                            if (isSearching) Icons.Default.Close else Icons.Default.Search,
+                            contentDescription = "Search"
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(R.color.lilac))
@@ -154,27 +172,47 @@ fun NewsHomeScreen(viewModel: NewsViewModel) {
             BottomNavigationBar(
                 items = listOf(
                     NavigationItem("Headlines", "headlines", Icons.Default.Home),
-                    NavigationItem("Categories", "categories", Icons.Default.List)
+                    NavigationItem("Categories", "categories", Icons.Default.List),
                 ),
                 navController = navController,
                 onItemClick = { navController.navigate(it.route) }
             )
         }
     ) { innerPadding ->
-        NewsNavGraph(navController = navController, newsList = filteredNewsList, errorMessage = errorMessage, modifier = Modifier.padding(innerPadding), onItemClick = { url -> navController.navigate("webview/${Uri.encode(url)}") }, viewModel = viewModel)
+        NewsNavGraph(
+            navController = navController,
+            newsList = filteredNewsList,
+            errorMessage = errorMessage,
+            modifier = Modifier.padding(innerPadding),
+            onItemClick = { url -> navController.navigate("web-view/${Uri.encode(url)}") },
+            viewModel = viewModel
+        )
     }
 }
 
 @Composable
-fun NewsNavGraph(navController: NavHostController, newsList: List<HeadLines>, errorMessage: String?, modifier: Modifier, onItemClick: (String) -> Unit, viewModel: NewsViewModel) {
+fun NewsNavGraph(
+    navController: NavHostController,
+    newsList: List<HeadLines>,
+    errorMessage: String?,
+    modifier: Modifier,
+    onItemClick: (String) -> Unit,
+    viewModel: NewsViewModel
+) {
     NavHost(navController = navController, startDestination = "headlines", modifier = modifier) {
         composable(route = "headlines") {
-            Headlines(newsList = newsList, errorMessage = errorMessage, onItemClick = onItemClick, sourceLogos = sourceLogos, viewModel = viewModel)
+            Headlines(
+                newsList = newsList,
+                errorMessage = errorMessage,
+                onItemClick = onItemClick,
+                sourceLogos = sourceLogos,
+                viewModel = viewModel
+            )
         }
         composable(route = "categories") {
             NewsCategories(onItemClick = onItemClick, viewModel = viewModel)
         }
-        composable(route = "webview/{url}") { backStackEntry ->
+        composable(route = "web-view/{url}") { backStackEntry ->
             val url = backStackEntry.arguments?.getString("url")
             if (url != null) {
                 WebView(url)
@@ -184,19 +222,31 @@ fun NewsNavGraph(navController: NavHostController, newsList: List<HeadLines>, er
 }
 
 @Composable
-fun BottomNavigationBar(items: List<NavigationItem>, navController: NavController, modifier: Modifier = Modifier, onItemClick: (NavigationItem) -> Unit) {
+fun BottomNavigationBar(
+    items: List<NavigationItem>,
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    onItemClick: (NavigationItem) -> Unit
+) {
     val backStackEntry = navController.currentBackStackEntryAsState()
     NavigationBar(modifier = modifier, containerColor = Color.DarkGray, tonalElevation = 5.dp) {
         items.forEach { item ->
             val selected = item.route == backStackEntry.value?.destination?.route
-            NavigationBarItem(selected = selected, onClick = { onItemClick(item) }, colors = NavigationBarItemDefaults.colors(selectedIconColor = Color.DarkGray, unselectedIconColor = Color.Gray), icon = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(imageVector = item.icon, contentDescription = item.name)
-                    if (selected) {
-                        Text(text = item.name, textAlign = TextAlign.Center, fontSize = 10.sp)
+            NavigationBarItem(
+                selected = selected,
+                onClick = { onItemClick(item) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.DarkGray,
+                    unselectedIconColor = Color.Gray
+                ),
+                icon = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(imageVector = item.icon, contentDescription = item.name)
+                        if (selected) {
+                            Text(text = item.name, textAlign = TextAlign.Center, fontSize = 10.sp)
+                        }
                     }
-                }
-            })
+                })
         }
     }
 }
@@ -220,7 +270,7 @@ fun Headlines(
     }
 
     val pullRefreshState = rememberPullRefreshState(refreshing, ::refresh)
-    val rotation = animateFloatAsState(pullRefreshState.progress * 120)
+    val rotation = animateFloatAsState(pullRefreshState.progress * 120, label = "")
 
     Box(
         Modifier
@@ -230,7 +280,7 @@ fun Headlines(
         if (newsList.isNotEmpty()) {
             LazyColumn {
                 if (refreshing) {
-                    viewModel.getNewsHeadLines()
+                    viewModel.getNewsHeadLines("general",null)
                 }
                 items(newsList) { newsItem ->
                     Box(
@@ -322,7 +372,10 @@ fun Headlines(
 }
 
 @Composable
-fun NewsCategories(onItemClick: (String) -> Unit, viewModel: NewsViewModel) {
+fun NewsCategories(
+    onItemClick: (String) -> Unit,
+    viewModel: NewsViewModel
+) {
     val selectedCategory = remember { mutableStateOf("Business") }
     val (newsList, setNewsList) = remember { mutableStateOf<List<HeadLines?>?>(null) }
     val (errorMessage, setErrorMessage) = remember { mutableStateOf<String?>(null) }
@@ -344,16 +397,31 @@ fun NewsCategories(onItemClick: (String) -> Unit, viewModel: NewsViewModel) {
 
     LaunchedEffect(selectedCategory.value) {
         isLoading = true
-        apiRequestManager.getNewsHeadLines(listener, selectedCategory.value, null)
+        apiRequestManager.getNewsHeadLines(selectedCategory.value, null, listener)
         isLoading = false
     }
 
     Scaffold(
         topBar = {
-            TopBar(items = listOf("General", "Business", "Entertainment", "Health", "Science", "Sports"), selectedItem = selectedCategory.value, onItemSelected = { category -> selectedCategory.value = category })
+            TopBar(
+                items = listOf(
+                    "General",
+                    "Business",
+                    "Entertainment",
+                    "Health",
+                    "Science",
+                    "Sports"
+                ),
+                selectedItem = selectedCategory.value,
+                onItemSelected = { category -> selectedCategory.value = category })
         },
         content = {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(it)) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)
+            ) {
                 if (isLoading) {
                     CircularProgressIndicator()
                 } else {
@@ -373,7 +441,13 @@ fun NewsCategories(onItemClick: (String) -> Unit, viewModel: NewsViewModel) {
                         }
                     }
                     newsList?.let { list ->
-                        Headlines(newsList = list.filterNotNull(), errorMessage = errorMessage, onItemClick = onItemClick, sourceLogos = sourceLogos, viewModel = viewModel)
+                        Headlines(
+                            newsList = list.filterNotNull(),
+                            errorMessage = errorMessage,
+                            onItemClick = onItemClick,
+                            sourceLogos = sourceLogos,
+                            viewModel = viewModel
+                        )
                     }
                 }
             }
@@ -393,7 +467,12 @@ fun WebView(url: String) {
 fun TopBar(items: List<String>, selectedItem: String, onItemSelected: (String) -> Unit) {
     Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
         items.forEach { item ->
-            TopBarItem(text = item, isSelected = item == selectedItem, onClick = { onItemSelected(item) }, selectedColor = R.color.lilac02)
+            TopBarItem(
+                text = item,
+                isSelected = item == selectedItem,
+                onClick = { onItemSelected(item) },
+                selectedColor = R.color.lilac02
+            )
         }
     }
 }
@@ -403,16 +482,23 @@ fun TopBarItem(text: String, isSelected: Boolean, onClick: () -> Unit, selectedC
     Box(modifier = Modifier.clickable(onClick = onClick), contentAlignment = Alignment.Center) {
         Text(
             text = text,
-            modifier = Modifier.padding(16.dp, 8.dp).then(
-                if (isSelected) {
-                    Modifier.drawWithContent {
-                        drawContent()
-                        drawLine(color = Color(selectedColor), start = Offset(0f, size.height), end = Offset(size.width, size.height), strokeWidth = 8f)
+            modifier = Modifier
+                .padding(16.dp, 8.dp)
+                .then(
+                    if (isSelected) {
+                        Modifier.drawWithContent {
+                            drawContent()
+                            drawLine(
+                                color = Color(selectedColor),
+                                start = Offset(0f, size.height),
+                                end = Offset(size.width, size.height),
+                                strokeWidth = 8f
+                            )
+                        }
+                    } else {
+                        Modifier
                     }
-                } else {
-                    Modifier
-                }
-            ),
+                ),
             color = if (isSelected) Color(selectedColor) else Color.Gray,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
@@ -423,3 +509,4 @@ fun TopBarItem(text: String, isSelected: Boolean, onClick: () -> Unit, selectedC
 fun ShowToastMessage(context: Context, message: String?) {
     message?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
 }
+

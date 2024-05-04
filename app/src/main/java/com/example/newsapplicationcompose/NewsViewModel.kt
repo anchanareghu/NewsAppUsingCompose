@@ -1,29 +1,28 @@
 package com.example.newsapplicationcompose
 
-import android.content.Context
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import models.HeadLines
+import com.example.newsapplicationcompose.models.HeadLines
 
-class NewsViewModel(context: Context) : ViewModel() {
-    private val apiRequestManager = ApiRequestManager(context)
+class NewsViewModel(private val apiRequestManager: ApiRequestManager) : ViewModel() {
+    private val _newsList: MutableLiveData<List<HeadLines>> = MutableLiveData(emptyList())
+    val newsList: LiveData<List<HeadLines>> = _newsList
 
-    val newsList: LiveData<List<HeadLines>> = MutableLiveData(emptyList())
-    val errorMessage: LiveData<String?> = MutableLiveData(null)
+    private val _errorMessage: MutableLiveData<String?> = MutableLiveData(null)
+    val errorMessage: LiveData<String?> = _errorMessage
 
-    fun getNewsHeadLines() {
-        apiRequestManager.getNewsHeadLines(object : OnFetchDataListener {
+    fun getNewsHeadLines(category: String?, query: String?) {
+        apiRequestManager.getNewsHeadLines(category, query, object : OnFetchDataListener {
+
             override fun onFetchData(headLinesList: List<HeadLines?>?, message: String?) {
-                (newsList as MutableLiveData).value =
-                    (headLinesList ?: emptyList()) as List<HeadLines>
+                _newsList.value = headLinesList?.filterNotNull() ?: emptyList()
+                _errorMessage.value = message ?: "Unknown error occurred"
             }
 
             override fun onError(message: String?) {
-                (errorMessage as MutableLiveData).value = message ?: "Unknown error occurred"
+                _errorMessage.value = message ?: "Unknown error occurred"
             }
-        }, "general", null)
+        })
     }
 }

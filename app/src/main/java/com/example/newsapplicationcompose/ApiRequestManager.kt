@@ -1,7 +1,7 @@
 package com.example.newsapplicationcompose
 
 import android.content.Context
-import models.NewsApi
+import com.example.newsapplicationcompose.models.NewsApi
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -17,38 +17,34 @@ class ApiRequestManager(private val context: Context) {
         .build()
 
     fun getNewsHeadLines(
-        fetchDataListener: OnFetchDataListener,
         category: String?,
-        query: String?
+        query: String?,
+        callback: OnFetchDataListener
     ) {
         val callNewsApi = retrofit.create(CallNewsApi::class.java)
-        try {
-            callNewsApi.headlinesApiCall(
-                "in",
-                category,
-                query,
-                context.getString(R.string.API_KEY)
-            )?.enqueue(object : Callback<NewsApi?> {
-                override fun onResponse(call: Call<NewsApi?>, response: Response<NewsApi?>) {
-                    if (!response.isSuccessful) {
-                        fetchDataListener.onError("Request Failed!")
-                        return
-                    }
-                    val body = response.body()
-                    if (body?.articles != null) {
-                        fetchDataListener.onFetchData(body.articles, response.message())
-                    } else {
-                        fetchDataListener.onError("No data available!")
-                    }
+        callNewsApi.headlinesApiCall(
+            "in",
+            category,
+            query,
+            context.getString(R.string.API_KEY)
+        )?.enqueue(object : Callback<NewsApi?> {
+            override fun onResponse(call: Call<NewsApi?>, response: Response<NewsApi?>) {
+                if (!response.isSuccessful) {
+                    callback.onFetchData(null, "Request Failed!")
+                    return
                 }
+                val body = response.body()
+                if (body?.articles != null) {
+                    callback.onFetchData(body.articles, response.message())
+                } else {
+                    callback.onFetchData(null, "No data available!")
+                }
+            }
 
-                override fun onFailure(call: Call<NewsApi?>, t: Throwable) {
-                    fetchDataListener.onError("Request Failed!")
-                }
-            })
-        } catch (e: Exception) {
-            fetchDataListener.onError("Request Failed!")
-        }
+            override fun onFailure(call: Call<NewsApi?>, t: Throwable) {
+                callback.onError("Request Failed!")
+            }
+        })
     }
 
     interface CallNewsApi {
@@ -61,5 +57,3 @@ class ApiRequestManager(private val context: Context) {
         ): Call<NewsApi?>?
     }
 }
-
-

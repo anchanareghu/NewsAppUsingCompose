@@ -1,6 +1,6 @@
 package com.example.newsapplicationcompose
 
-import models.HeadLines
+import com.example.newsapplicationcompose.models.HeadLines
 
 interface OnFetchDataListener {
     fun onFetchData(headLinesList: List<HeadLines?>?, message: String?)

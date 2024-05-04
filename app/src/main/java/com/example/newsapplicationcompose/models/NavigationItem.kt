@@ -1,4 +1,4 @@
-package models
+package com.example.newsapplicationcompose.models
 
 import androidx.compose.ui.graphics.vector.ImageVector
 
