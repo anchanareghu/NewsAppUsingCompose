@@ -3,6 +3,7 @@ package ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -21,7 +22,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.newsapplicationcompose.NewsViewModel
 import com.example.newsapplicationcompose.models.HeadLines
 import com.example.newsapplicationcompose.models.NavigationItem
-import com.example.newsapplicationcompose.models.sourceLogos
 
 @Composable
 fun NewsNavGraph(
@@ -76,7 +76,7 @@ fun BottomNavigationBar(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(imageVector = item.icon, contentDescription = item.name)
                         if (selected) {
-                            Text(text = item.name, textAlign = TextAlign.Center, fontSize = 10.sp)
+                            Text(text = item.name, textAlign = TextAlign.Center, style = LocalTextStyle.current.copy(fontSize = 8.sp))
                         }
                     }
                 }

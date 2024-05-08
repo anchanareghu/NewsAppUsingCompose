@@ -1,4 +1,4 @@
-package com.example.newsapplicationcompose.models
+package ui
 
 import com.example.newsapplicationcompose.R
 

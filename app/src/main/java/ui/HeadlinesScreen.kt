@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +20,7 @@ import androidx.compose.material.pullrefresh.pullRefreshIndicatorTransform
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,7 +79,7 @@ fun Headlines(
                 items(newsList) { newsItem ->
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth().height(180.dp)
                             .clickable { onItemClick(newsItem.url) },
                         contentAlignment = Alignment.Center
                     ) {
@@ -91,7 +93,8 @@ fun Headlines(
                     }
                     Text(
                         text = newsItem.title,
-                        modifier = Modifier.padding(16.dp, 8.dp)
+                        modifier = Modifier.padding(16.dp, 4.dp),
+                        style = LocalTextStyle.current.copy(fontSize = 16.sp)
                     )
                     val sourceImageId = sourceLogos[newsItem.source?.name]
                     if (sourceImageId != null) {
@@ -100,14 +103,13 @@ fun Headlines(
                             contentDescription = newsItem.source?.name,
                             contentScale = ContentScale.FillWidth,
                             modifier = Modifier
-                                .size(80.dp, 48.dp)
+                                .size(80.dp, 42.dp)
                                 .padding(12.dp, 0.dp)
                         )
                     } else {
                         Text(
                             text = newsItem.source?.name ?: " ",
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.Bold,
+                            style = LocalTextStyle.current.copy(fontSize = 8.sp,fontWeight = FontWeight.Bold),
                             color = Color.Gray,
                             modifier = Modifier.padding(16.dp, 8.dp)
                         )
