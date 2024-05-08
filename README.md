@@ -1,7 +1,7 @@
-# News App
+# NewsDaily
 
 ## Overview
-The News App is a simple Android application built using Kotlin, Jetpack Compose, and Retrofit. It allows users to browse the latest news articles from various categories such as business, general, entertainment, health, science, and sports.
+The NewsDaily is a simple Android application built using Kotlin, Jetpack Compose, and Retrofit. It allows users to browse the latest news articles from various categories such as business, general, entertainment, health, science, and sports.
 
 ## Technologies Used
 - **Kotlin**: The app is built using the Kotlin programming language.
