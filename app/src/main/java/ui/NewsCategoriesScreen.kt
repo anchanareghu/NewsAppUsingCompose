@@ -1,6 +1,7 @@
 package ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -65,14 +67,13 @@ fun NewsCategories(
     }
 
     Scaffold(
-        content = { it ->
+        content = {
             Column(
                 modifier = Modifier
                     .padding(it)
             ) {
                 TabRow(
                     selectedTabIndex = listOf(
-                        "General",
                         "Business",
                         "Entertainment",
                         "Health",
@@ -80,10 +81,9 @@ fun NewsCategories(
                         "Sports"
                     ).indexOf(selectedCategory.value),
                     backgroundColor = MaterialTheme.colors.background,
-                    contentColor = MaterialTheme.colors.onBackground
+                    contentColor = MaterialTheme.colors.onBackground,
                 ) {
                     listOf(
-                        "General",
                         "Business",
                         "Entertainment",
                         "Health",
@@ -100,17 +100,12 @@ fun NewsCategories(
                             text = {
                                 Text(
                                     text = category,
-                                    modifier = Modifier
-                                        .padding(horizontal = 2.dp, vertical = 2.dp),
-                                    style = MaterialTheme.typography.body1,
-                                    textAlign = TextAlign.Center, fontSize = 8.sp
+                                    fontSize = 8.sp
                                 )
                             },
-                            modifier = Modifier.height(32.dp)
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
                 Box(modifier = Modifier.weight(1f)) {
                     if (isLoading) {
                         Box(

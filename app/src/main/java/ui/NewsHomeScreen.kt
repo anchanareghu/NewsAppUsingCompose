@@ -2,8 +2,8 @@ package ui
 
 import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -70,7 +70,8 @@ fun NewsHomeScreen(viewModel: NewsViewModel) {
                             onValueChange = { searchText = it },
                             placeholder = { Text("Search News here...") },
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .height(48.dp),
                             singleLine = true,
                             colors = TextFieldDefaults.colors(cursorColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(18.dp),
@@ -88,10 +89,11 @@ fun NewsHomeScreen(viewModel: NewsViewModel) {
                 },
                 navigationIcon = {
                     Image(
-                        painter = painterResource(R.mipmap.ic_launcher_foreground),
+                        painter = painterResource(R.drawable.ic_app_logo),
                         contentDescription = "app_logo",
-                        Modifier
-                            .fillMaxHeight().width(54.dp)
+                        modifier = Modifier
+                            .width(54.dp)
+                            .height(24.dp)
                     )
                 },
                 actions = {

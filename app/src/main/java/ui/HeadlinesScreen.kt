@@ -79,7 +79,7 @@ fun Headlines(
                 items(newsList) { newsItem ->
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth().height(180.dp)
+                            .fillMaxWidth()
                             .clickable { onItemClick(newsItem.url) },
                         contentAlignment = Alignment.Center
                     ) {
@@ -93,7 +93,7 @@ fun Headlines(
                     }
                     Text(
                         text = newsItem.title,
-                        modifier = Modifier.padding(16.dp, 4.dp),
+                        modifier = Modifier.padding(16.dp, 8.dp),
                         style = LocalTextStyle.current.copy(fontSize = 16.sp)
                     )
                     val sourceImageId = sourceLogos[newsItem.source?.name]
@@ -103,13 +103,14 @@ fun Headlines(
                             contentDescription = newsItem.source?.name,
                             contentScale = ContentScale.FillWidth,
                             modifier = Modifier
-                                .size(80.dp, 42.dp)
+                                .size(80.dp, 48.dp)
                                 .padding(12.dp, 0.dp)
                         )
                     } else {
                         Text(
                             text = newsItem.source?.name ?: " ",
-                            style = LocalTextStyle.current.copy(fontSize = 8.sp,fontWeight = FontWeight.Bold),
+                            fontWeight = FontWeight.Bold,
+                            style = LocalTextStyle.current.copy(fontSize = 8.sp),
                             color = Color.Gray,
                             modifier = Modifier.padding(16.dp, 8.dp)
                         )
