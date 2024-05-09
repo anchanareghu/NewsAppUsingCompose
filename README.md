@@ -21,5 +21,5 @@ The NewsDaily is a simple Android application built using Kotlin, Jetpack Compos
 - Pull-to-refresh: Pull down to refresh the news feed and fetch the latest articles.
 
 ## Screenshots
-<img src="app/src/main/res/drawable/screenshot_01.png" width="200" /> <img src="app/src/main/res/drawable/screenshot_03.png" width="200" /> <img src="app/src/main/res/drawable/screenshot_02.png" width="200" /> <img src="app/src/main/res/drawable/screenshot_04.png" width="200" />
+<img src="app/src/main/res/drawable/screenshot_01.png" width="200" /> <img src="app/src/main/res/drawable/screenshot_03.png" width="200" /> <img src="app/src/main/res/drawable/screenshot_02.png" width="200" /> <img src="app/src/main/res/drawable/screenshot_05.png" width="200" />
 
