@@ -106,7 +106,6 @@ fun NewsCategories(
                         )
                     }
                 }
-                Box(modifier = Modifier.weight(1f)) {
                     if (isLoading) {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -141,7 +140,7 @@ fun NewsCategories(
                             viewModel = viewModel
                         )
                     }
-                }
+
             }
         }
     )

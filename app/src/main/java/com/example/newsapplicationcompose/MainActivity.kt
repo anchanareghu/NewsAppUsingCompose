@@ -18,9 +18,7 @@ class MainActivity : AppCompatActivity() {
         viewModel = NewsViewModel(apiRequestManager)
 
         setContent {
-            NewsTheme {
                 NewsHomeScreen(viewModel)
-            }
         }
     }
 }
