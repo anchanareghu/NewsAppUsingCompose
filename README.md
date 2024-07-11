@@ -1,7 +1,7 @@
 
-![News App Phone Mockup (1)](https://github.com/anchanareghu/NewsAppUsingCompose/assets/143755659/005b0cc0-b044-4844-92f9-82f08d32a266)
-
+![Purple App Phone Mockup(1)](https://github.com/anchanareghu/NewsAppUsingCompose/assets/143755659/145aa574-7d56-42c5-9ad1-2d1d8c3fab77)
 # NewsDaily
+
 
 ## Overview
 The NewsDaily is a simple Android application built using Kotlin, Jetpack Compose, and Retrofit. It allows users to browse the latest news articles from various categories such as business, general, entertainment, health, science, and sports.
