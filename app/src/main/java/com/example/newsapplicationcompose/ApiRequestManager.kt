@@ -1,7 +1,7 @@
 package com.example.newsapplicationcompose
 
 import android.content.Context
-import com.example.newsapplicationcompose.models.NewsApi
+import com.example.newsapplicationcompose.data.NewsApi
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

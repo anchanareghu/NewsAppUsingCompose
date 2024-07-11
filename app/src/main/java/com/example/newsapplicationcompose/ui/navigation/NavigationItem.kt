@@ -1,4 +1,4 @@
-package com.example.newsapplicationcompose.models
+package com.example.newsapplicationcompose.ui.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 
