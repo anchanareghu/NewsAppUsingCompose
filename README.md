@@ -1,3 +1,6 @@
+
+![Purple App Phone Mockup Sales Marketing Presentation (1)](https://github.com/anchanareghu/NewsAppUsingCompose/assets/143755659/ff708258-0603-4ab9-9fd2-14ed33c39e38)
+
 # NewsDaily
 
 ## Overview
@@ -19,7 +22,4 @@ The NewsDaily is a simple Android application built using Kotlin, Jetpack Compos
 - Categories: Explore news articles categorized into different topics such as Business, Entertainment, Health, Science, Sports, etc.
 - Search: Search for specific news articles by entering keywords.
 - Pull-to-refresh: Pull down to refresh the news feed and fetch the latest articles.
-
-## Screenshots
-<img src="app/src/main/res/drawable/screenshot_01.png" width="200" /> <img src="app/src/main/res/drawable/screenshot_03.png" width="200" /> <img src="app/src/main/res/drawable/screenshot_02.png" width="200" /> <img src="app/src/main/res/drawable/screenshot_05.png" width="200" />
 
