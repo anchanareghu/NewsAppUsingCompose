@@ -1,5 +1,5 @@
 
-![Purple App Phone Mockup Sales Marketing Presentation (1)](https://github.com/anchanareghu/NewsAppUsingCompose/assets/143755659/ff708258-0603-4ab9-9fd2-14ed33c39e38)
+![News App Phone Mockup (1)](https://github.com/anchanareghu/NewsAppUsingCompose/assets/143755659/005b0cc0-b044-4844-92f9-82f08d32a266)
 
 # NewsDaily
 
