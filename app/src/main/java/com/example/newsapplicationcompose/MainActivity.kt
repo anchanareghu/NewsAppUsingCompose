@@ -16,8 +16,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         val apiRequestManager = ApiRequestManager(applicationContext)
-        viewModel = ViewModelProvider(this, NewsViewModelFactory(apiRequestManager))
-            .get(NewsViewModel::class.java)
+        viewModel = ViewModelProvider(this, NewsViewModelFactory(apiRequestManager))[NewsViewModel::class.java]
 
         setContent {
             NewsHomeScreen()
