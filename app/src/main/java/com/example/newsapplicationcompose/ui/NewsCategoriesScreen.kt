@@ -59,7 +59,7 @@ fun NewsCategories(
 ) {
     var selectedCategory by rememberSaveable { mutableStateOf("Business") }
     val (newsList, setNewsList) = remember { mutableStateOf<List<HeadLines?>?>(null) }
-    val (errorMessage, setErrorMessage) = remember { mutableStateOf<String?>(null) }
+    val (errorMessage, setErrorMessage) = remember { mutableStateOf<String?>("something went wrong..") }
     var isLoading by remember { mutableStateOf(true) }
 
     val categories = listOf(

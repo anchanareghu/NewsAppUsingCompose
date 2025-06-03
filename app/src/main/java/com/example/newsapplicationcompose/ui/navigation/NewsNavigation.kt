@@ -1,6 +1,7 @@
 package com.example.newsapplicationcompose.ui.navigation
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle

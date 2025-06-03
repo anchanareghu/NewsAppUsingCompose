@@ -23,7 +23,7 @@ class ApiRequestManager(private val context: Context) {
     ) {
         val callNewsApi = retrofit.create(CallNewsApi::class.java)
         callNewsApi.headlinesApiCall(
-            "in",
+//            "us",
             category,
             query,
             context.getString(R.string.API_KEY)
@@ -50,7 +50,7 @@ class ApiRequestManager(private val context: Context) {
     interface CallNewsApi {
         @GET("top-headlines")
         fun headlinesApiCall(
-            @Query("country") country: String?,
+//            @Query("country") country: String?,
             @Query("category") category: String?,
             @Query("q") query: String?,
             @Query("apiKey") apiKey: String?

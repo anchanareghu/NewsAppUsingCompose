@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
@@ -77,20 +78,18 @@ fun NewsHomeScreen() {
                 TopAppBar(
                     title = {
                         if (isSearching) {
-                            OutlinedTextField(
+                            TextField(
                                 value = searchText,
                                 onValueChange = { searchText = it },
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
+                                    .fillMaxWidth().padding(4.dp),
                                 placeholder = {
                                     Text(
-                                        text = "Search news ..",
+                                        text = "Search for news with keywords here...",
                                         color = Color.DarkGray,
-                                        fontSize = 16.sp
+                                        fontSize = 12.sp
                                     )
                                 },
-                                shape = RoundedCornerShape(16.dp),
                             )
                         } else {
                             Text(
